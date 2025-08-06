@@ -38,6 +38,9 @@ class AuthenticatedSessionController extends Controller
     {
         Auth::guard('web')->logout();
 
+        // Terminate all sessions for the user
+        \DB::table('sessions')->where('user_id', auth()->id())->delete();
+
         $request->session()->invalidate();
 
         $request->session()->regenerateToken();
