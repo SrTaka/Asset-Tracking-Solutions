@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -16,6 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+Route::get('/send-test-email', function () {
+    Mail::to('recipient@example.com')->send(new TestMail());
+    return 'Test email sent!';
+});
+
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin_auth.php';
