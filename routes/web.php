@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestMail;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AssetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,6 +25,8 @@ Route::get('/send-test-email', function () {
     return 'Test email sent!';
 });
 
+Route::get('/create-assets', [AssetController::class, 'create'])->name('admin.assets.create');
+Route::post('/create-assets', [AssetController::class, 'store'])->name('admin.assets.store');
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin_auth.php';
