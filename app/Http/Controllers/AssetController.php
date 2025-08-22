@@ -7,30 +7,48 @@ use Illuminate\Support\Facades\Storage;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Services\AssetService;
 use App\Models\Asset;
+use App\Models\AssetCategory;
+
 class AssetController extends Controller
 {
-   
+    /**
+     * Show the form for creating a new asset.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function create()
-
     {
-        return view('admin.assets.create-assets');
+        $categories = AssetCategory::all();
+        return view('admin.assets.create', compact('categories'));
     }
 
-        /**
-         * Store a newly created asset in storage.
-         *
-         * @param  \Illuminate\Http\Request  $request
-         * @return \Illuminate\Http\Response
-         */
+    /**
+     * Display a listing of the assets.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        $assets = Asset::with('category')->latest()->paginate(10);
+        return view('admin.assets.index', compact('assets'));
+    }
+
+    /**
+     * Store a newly created asset in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         // Validate input
         $validated = $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:100',
             'description' => 'nullable|string',
-            'category_id' => 'required|integer|exists:categories,id',
+            'category_id' => 'nullable|integer', // Made optional temporarily
             'purchase_date' => 'required|date',
             'purchase_price' => 'required|numeric|min:0',
+            'asset_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240', // 10MB max
         ]);
 
         try {
@@ -40,6 +58,10 @@ class AssetController extends Controller
             $asset->category_id = $validated['category_id'];
             $asset->purchase_date = $validated['purchase_date'];
             $asset->purchase_price = $validated['purchase_price'];
+
+            // Save the asset first to get the ID
+            $asset->save();
+
             // Generate QR code data from asset fields
             $qrData = json_encode([
                 'id' => $asset->id,
@@ -61,16 +83,28 @@ class AssetController extends Controller
             // Set QR code generated timestamp
             $asset->qr_code_generated_at = now();
 
-            // Optionally set asset image path if you handle asset images
-            $assetImagePath = 'assets/images/' . $asset->id . '_photo.jpg';
-            // Example: Storage::put('public/' . $assetImagePath, $imageData); // $imageData should be the image binary
-            $asset->asset_image_path = $assetImagePath;
+            // Handle asset image upload if provided
+            if ($request->hasFile('asset_image')) {
+                $image = $request->file('asset_image');
+                $imageName = $asset->id . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $imagePath = 'assets/images/' . $imageName;
+                
+                // Store the image
+                Storage::put('public/' . $imagePath, file_get_contents($image));
+                $asset->asset_image_path = $imagePath;
+            } else {
+                // Set default asset image path
+                $asset->asset_image_path = 'assets/images/default_asset.jpg';
+            }
 
             $asset->save();
 
-            return response()->json(['message' => 'Asset created successfully', 'asset' => $asset], 201);
+            return redirect()->route('admin.dashboard')
+                           ->with('success', 'Asset created successfully!');
+
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Failed to create asset', 'details' => $e->getMessage()], 500);
+            return back()->withInput()
+                        ->withErrors(['error' => 'Failed to create asset: ' . $e->getMessage()]);
         }
     }
 }

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\AuthenticatedAdminController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
+use App\Http\Controllers\AssetController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('guest:admin')->group(function () {
@@ -23,5 +24,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
     Route::post('logout', [AuthenticatedAdminController::class, 'destroy'])
         ->name('admin.logout');
+
+    // Asset Management Routes
+    Route::get('assets', [AssetController::class, 'index'])->name('admin.assets.index');
+    Route::get('assets/create', [AssetController::class, 'create'])->name('admin.assets.create');
+    Route::post('assets', [AssetController::class, 'store'])->name('admin.assets.store');
 
 });

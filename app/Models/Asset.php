@@ -22,4 +22,12 @@ class Asset extends Model
             }
         });
     }
+
+    /**
+     * Get the category that owns the asset.
+     */
+    public function category()
+    {
+        return $this->belongsTo(AssetCategory::class, 'category_id');
+    }
 }
