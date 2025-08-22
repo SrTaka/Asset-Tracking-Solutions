@@ -25,8 +25,11 @@ Route::get('/send-test-email', function () {
     return 'Test email sent!';
 });
 
-Route::get('/create-assets', [AssetController::class, 'create'])->name('admin.assets.create');
-Route::post('/create-assets', [AssetController::class, 'store'])->name('admin.assets.store');
+// Admin asset routes
+Route::middleware('auth:admin')->group(function () {
+    Route::get('admin/assets/create-assets', [AssetController::class, 'create'])->name('admin.assets.create-assets');
+    Route::post('admin/assets', [AssetController::class, 'store'])->name('admin.assets.store');
+});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin_auth.php';

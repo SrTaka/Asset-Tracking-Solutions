@@ -21,9 +21,15 @@
                                                 this.closest('form').submit();">
                                 {{ __('Log Out') }}
                             </x-dropdown-link>
+                        
                         </form>
                     
                 </div>
+                   <a href="{{ route('admin.assets.create-assets') }}">        
+                            <x-primary-button type="button" class="mt-4">
+                                {{ __('Create New Asset') }}
+                            </x-primary-button>
+                    </a>
                 <div>
                     
                 </div>

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Blade;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,6 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        if ($this->app->runningUnitTests()) {
+            // Make @vite a no-op during tests to avoid manifest requirement
+            Blade::directive('vite', function () {
+                return '';
+            });
+        }
     }
 }
