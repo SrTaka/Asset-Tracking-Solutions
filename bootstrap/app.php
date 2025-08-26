@@ -6,7 +6,12 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
+        using: function () {
+            require __DIR__.'/../routes/web.php';
+            // Load additional route files
+            require __DIR__.'/../routes/auth.php';
+            require __DIR__.'/../routes/admin_auth.php';
+        },
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
