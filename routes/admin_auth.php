@@ -29,5 +29,9 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('assets', [AssetController::class, 'index'])->name('admin.assets.index');
     Route::get('assets/create', [AssetController::class, 'create'])->name('admin.assets.create');
     Route::post('assets', [AssetController::class, 'store'])->name('admin.assets.store');
+    Route::get('assets/{asset}', [AssetController::class, 'show'])->name('admin.assets.show');
+    Route::get('assets/{asset}/edit', [AssetController::class, 'edit'])->name('admin.assets.edit');
+    Route::put('assets/{asset}', [AssetController::class, 'update'])->name('admin.assets.update');
+    Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('admin.assets.destroy');
 
 });

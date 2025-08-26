@@ -133,6 +133,16 @@
                             <x-input-error :messages="$errors->get('asset_image')" class="mt-2" />
                         </div>
 
+                        <!-- QR Code Generation Info -->
+                        <div class="mt-6 p-4 bg-indigo-50 dark:bg-indigo-900 rounded-md flex items-center">
+                            <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-300 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7V5a2 2 0 012-2h2m10 0h2a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-2m-10 0H5a2 2 0 01-2-2v-2" />
+                            </svg>
+                            <span class="text-sm text-indigo-700 dark:text-indigo-200">
+                                A unique QR code will be automatically generated and saved for this asset after creation.
+                            </span>
+                        </div>
+
                         <!-- Submit Button -->
                         <div class="flex items-center justify-end mt-6">
                             <x-primary-button class="ml-3">

@@ -34,6 +34,88 @@ class AssetController extends Controller
     }
 
     /**
+     * Display the specified asset.
+     */
+    public function show(Asset $asset)
+    {
+        $asset->load('category');
+        return view('admin.assets.show', compact('asset'));
+    }
+
+    /**
+     * Show the form for editing the specified asset.
+     */
+    public function edit(Asset $asset)
+    {
+        $categories = AssetCategory::all();
+        return view('admin.assets.edit', compact('asset', 'categories'));
+    }
+
+    /**
+     * Update the specified asset in storage.
+     */
+    public function update(Request $request, Asset $asset)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'category_id' => 'nullable|integer',
+            'purchase_date' => 'required|date',
+            'purchase_price' => 'required|numeric|min:0',
+            'asset_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:10240',
+        ]);
+
+        try {
+            $asset->name = $validated['name'];
+            $asset->description = $validated['description'] ?? null;
+            $asset->category_id = $validated['category_id'];
+            $asset->purchase_date = $validated['purchase_date'];
+            $asset->purchase_price = $validated['purchase_price'];
+
+            if ($request->hasFile('asset_image')) {
+                // Remove old image if any
+                if (!empty($asset->asset_image_path)) {
+                    Storage::delete('public/' . $asset->asset_image_path);
+                }
+
+                $image = $request->file('asset_image');
+                $imageName = $asset->id . '_' . time() . '.' . $image->getClientOriginalExtension();
+                $imagePath = 'assets/images/' . $imageName;
+                Storage::put('public/' . $imagePath, file_get_contents($image));
+                $asset->asset_image_path = $imagePath;
+            }
+
+            $asset->save();
+
+            return redirect()->route('admin.assets.index')
+                ->with('success', 'Asset updated successfully!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->withErrors(['error' => 'Failed to update asset: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Remove the specified asset from storage.
+     */
+    public function destroy(Asset $asset)
+    {
+        try {
+            if (!empty($asset->asset_image_path)) {
+                Storage::delete('public/' . $asset->asset_image_path);
+            }
+            if (!empty($asset->qr_code_path)) {
+                Storage::delete('public/' . $asset->qr_code_path);
+            }
+            $asset->delete();
+            return redirect()->route('admin.assets.index')
+                ->with('success', 'Asset deleted successfully!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Failed to delete asset: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
      * Store a newly created asset in storage.
      *
      * @param  \Illuminate\Http\Request  $request
