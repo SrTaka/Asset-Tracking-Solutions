@@ -8,6 +8,10 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use App\Services\AssetService;
 use App\Models\Asset;
 use App\Models\AssetCategory;
+use App\Exports\AssetExports;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\AssetImports;
+
 
 class AssetController extends Controller
 {
@@ -27,10 +31,30 @@ class AssetController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $assets = Asset::with('category')->latest()->paginate(10);
+        $query = Asset::with('category');
+
+        if ($request->has('name')) {
+            $query->where('name', 'like', '%' . $request->input('name') . '%');
+        }
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->input('category_id'));
+        }
+
+        if ($request->has('purchase_date')) {
+
+        if ($request->has('purchase_price')) {
+            $query->where('purchase_price', $request->input('purchase_price'));
+        }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->input('status'));
+        $assets = $query->latest()->paginate(10);
+
         return view('admin.assets.index', compact('assets'));
+
     }
 
     /**
@@ -189,4 +213,60 @@ class AssetController extends Controller
                         ->withErrors(['error' => 'Failed to create asset: ' . $e->getMessage()]);
         }
     }
+
+    public function export(Request $request)
+    {
+        $filters = $request->all();
+        $format = $request->get('format', 'csv');
+
+        $filename = 'assets_export_' . now()->format('Y-m-d_H-i-s') . '.' . $format;
+        switch ($format) {
+            case 'csv':
+                return Excel::download(new AssetExports($filters), $filename);
+            case 'xlsx':
+                return Excel::download(new AssetExports($filters), $filename);
+            case 'pdf':
+                return Excel::download(new AssetExports($filters), $filename);
+            default:
+                return back()->withErrors(['error' => 'Invalid format']);
+        }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls,csv',
+        ]);
+
+        try {
+            Excel::import(new AssetImports($filters), $request->file('file'));
+            return redirect()->route('admin.assets.index')
+                ->with('success', 'Assets imported successfully!');
+        } catch (\Exception $e) {
+            return back()->withInput()
+                ->withErrors(['error' => 'Failed to import assets: ' . $e->getMessage()]);
+        }
+    }
+
+    public function generateQrCode(Asset $asset)
+    {
+        $qrData = json_encode([
+            'id' => $asset->id,
+            'name' => $asset->name,
+            'category_id' => $asset->category_id,
+            'purchase_date' => $asset->purchase_date,
+            'purchase_price' => $asset->purchase_price,
+        ]);
+
+        $qrImage = QrCode::format('png')->size(300)->generate($qrData);
+
+        $qrCodePath = 'qr_codes/' . $asset->id . '.png';
+        Storage::put('public/' . $qrCodePath, $qrImage);
+        $asset->qr_code_path = $qrCodePath;
+        $asset->save();
+
+        return redirect()->route('admin.assets.show', $asset->id)
+            ->with('success', 'QR code generated successfully!');
+    }
+
 }

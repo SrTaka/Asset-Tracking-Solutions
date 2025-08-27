@@ -33,5 +33,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('assets/{asset}/edit', [AssetController::class, 'edit'])->name('admin.assets.edit');
     Route::put('assets/{asset}', [AssetController::class, 'update'])->name('admin.assets.update');
     Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('admin.assets.destroy');
+    // Export and Import Routes
+    Route::get('assets/export', [AssetController::class, 'export'])->name('admin.assets.export');
+    Route::post('assets/import', [AssetController::class, 'import'])->name('admin.assets.import');
+    Route::get('assets/{asset}/qr-code', [AssetController::class, 'generateQrCode'])->name('admin.assets.qr-code');
+
 
 });
