@@ -8,17 +8,9 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use Maatwebsite\Excel\Concerns\WithMapping;
-use Maatwebsite\Excel\Concerns\WithColumnWidths;
-use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithChunkReading;   
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Maatwebsite\Excel\Concerns\WithColumnFormatting;
-use Maatwebsite\Excel\Concerns\WithCustomStartCell;
-use Maatwebsite\Excel\Concerns\WithCustomValueBinder;
-use Maatwebsite\Excel\Concerns\WithDrawings;
-use Maatwebsite\Excel\Concerns\WithDrawings;
 
-class AssetExports implements FromCollection, WithHeadings, WithStyles, WithTitle, WithMapping, WithColumnWidths, WithEvents, WithChunkReading, WithColumnFormatting, WithCustomStartCell, WithCustomValueBinder, WithDrawings, WithDrawings
+class AssetExports implements FromCollection, WithHeadings, WithStyles, WithTitle, WithMapping
 {
     protected $filters;
 
@@ -35,8 +27,6 @@ class AssetExports implements FromCollection, WithHeadings, WithStyles, WithTitl
             $query->where('name', 'like', '%' . $this->filters['name'] . '%');
         }
         
-        return $query->get();
-
         if (!empty($this->filters['category_id'])) {
             $query->where('category_id', $this->filters['category_id']);
         }
@@ -53,7 +43,7 @@ class AssetExports implements FromCollection, WithHeadings, WithStyles, WithTitl
             $query->where('status', $this->filters['status']);
         }
 
-        return $query->get();
+        return $query->with('category')->get();
     }
 
     public function headings(): array
@@ -66,7 +56,7 @@ class AssetExports implements FromCollection, WithHeadings, WithStyles, WithTitl
             $asset->id,
             $asset->name,
             $asset->description,
-            $asset->category->name,
+            optional($asset->category)->name,
             $asset->purchase_date,
             $asset->purchase_price,
             $asset->status,

@@ -44,6 +44,8 @@ class AssetController extends Controller
         }
 
         if ($request->has('purchase_date')) {
+            $query->whereDate('purchase_date', $request->input('purchase_date'));
+        }
 
         if ($request->has('purchase_price')) {
             $query->where('purchase_price', $request->input('purchase_price'));
@@ -51,6 +53,8 @@ class AssetController extends Controller
 
         if ($request->has('status')) {
             $query->where('status', $request->input('status'));
+        }
+
         $assets = $query->latest()->paginate(10);
 
         return view('admin.assets.index', compact('assets'));
@@ -239,13 +243,18 @@ class AssetController extends Controller
         ]);
 
         try {
-            Excel::import(new AssetImports($filters), $request->file('file'));
+            Excel::import(new AssetImports(), $request->file('file'));
             return redirect()->route('admin.assets.index')
                 ->with('success', 'Assets imported successfully!');
         } catch (\Exception $e) {
             return back()->withInput()
                 ->withErrors(['error' => 'Failed to import assets: ' . $e->getMessage()]);
         }
+    }
+
+    public function importForm()
+    {
+        return view('admin.assets.import');
     }
 
     public function generateQrCode(Asset $asset)
