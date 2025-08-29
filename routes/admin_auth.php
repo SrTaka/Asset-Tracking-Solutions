@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\Auth\AuthenticatedAdminController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AssetController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,5 +41,12 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('admin.assets.destroy');
     Route::get('assets/{asset}/qr-code', [AssetController::class, 'generateQrCode'])->name('admin.assets.qr-code');
 
-
+    // User Management Routes
+    Route::get('users', [UserManagementController::class, 'index'])->name('admin.users.index');
+    Route::get('users/create', [UserManagementController::class, 'create'])->name('admin.users.create');
+    Route::post('users', [UserManagementController::class, 'store'])->name('admin.users.store');
+    Route::get('users/{id}', [UserManagementController::class, 'show'])->name('admin.users.show');
+    Route::get('users/{id}/edit', [UserManagementController::class, 'edit'])->name('admin.users.edit');
+    Route::put('users/{id}', [UserManagementController::class, 'update'])->name('admin.users.update');
+    Route::delete('users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
 });

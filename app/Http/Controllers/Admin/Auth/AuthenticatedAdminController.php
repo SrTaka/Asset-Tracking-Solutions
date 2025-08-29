@@ -44,5 +44,8 @@ class AuthenticatedAdminController extends Controller
 
         return redirect()->route('admin.login');
     }
+
+    // User management moved to UserManagementController
+    
 }
 
