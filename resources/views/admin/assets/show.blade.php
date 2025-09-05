@@ -40,12 +40,32 @@
                                 <span class="text-xs text-gray-500 mt-1">QR Code</span>
                             </div>
                         </div>
-                        <div><span class="font-semibold">ID:</span> {{ $asset->id }}</div>
-                        <div><span class="font-semibold">Name:</span> {{ $asset->name }}</div>
-                        <div><span class="font-semibold">Category:</span> {{ $asset->category->name ?? 'N/A' }}</div>
-                        <div><span class="font-semibold">Purchase Date:</span> {{ $asset->purchase_date }}</div>
-                        <div><span class="font-semibold">Purchase Price:</span> {{ $asset->purchase_price }}</div>
-                        <div><span class="font-semibold">Description:</span> {{ $asset->description ?? '—' }}</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">ID:</span>
+                                <span class="ml-2">{{ $asset->id }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Name:</span>
+                                <span class="ml-2">{{ $asset->name }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Category:</span>
+                                <span class="ml-2">{{ $asset->category->name ?? 'N/A' }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Purchase Date:</span>
+                                <span class="ml-2">{{ $asset->purchase_date }}</span>
+                            </div>
+                            <div>
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Purchase Price:</span>
+                                <span class="ml-2">{{ $asset->purchase_price }}</span>
+                            </div>
+                            <div class="sm:col-span-2">
+                                <span class="font-semibold text-gray-700 dark:text-gray-300">Description:</span>
+                                <span class="ml-2">{{ $asset->description ?? '—' }}</span>
+                            </div>
+                        </div>
                     
                     </div>
                 </div>
