@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-2xl mx-auto p-8 bg-white shadow rounded-lg mt-10">
+    <div class="max-w-2xl mx-auto p-8 shadow rounded-lg mt-10">
         <h1 class="text-2xl font-bold mb-6 text-gray-800">
             Create {{ $source === 'admins' ? 'Admin' : 'User' }}
         </h1>

@@ -51,4 +51,16 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('users/{id}/edit', [UserManagementController::class, 'edit'])->name('admin.users.edit');
     Route::put('users/{id}', [UserManagementController::class, 'update'])->name('admin.users.update');
     Route::delete('users/{id}', [UserManagementController::class, 'destroy'])->name('admin.users.destroy');
+
+    Route::get('users/{id}/qr-code', [UserManagementController::class, 'generateQrCode'])->name('admin.users.qr-code');
+    Route::get('users/{id}/qr', [UserManagementController::class, 'streamQrCode'])->name('admin.users.qr');
+    Route::get('/admin/assets/{asset}/qr/download', [\App\Http\Controllers\AssetController::class, 'downloadQr'])
+        ->name('admin.assets.qr.download');
+    
+    // Assignment routes
+    Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
+        Route::get('assignments', [AssignmentController::class, 'index'])->name('admin.assignments.index');
+        Route::get('assignments/create', [AssignmentController::class, 'create'])->name('admin.assignments.create');
+        Route::post('assignments', [AssignmentController::class, 'store'])->name('admin.assignments.store');
+    });
 });

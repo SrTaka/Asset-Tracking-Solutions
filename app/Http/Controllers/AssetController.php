@@ -344,4 +344,15 @@ class AssetController extends Controller
         ]);
     }
 
+    public function downloadQr($id)
+    {
+        $asset = Asset::findOrFail($id);
+        $qrData = route('admin.assets.show', $asset->id);
+        $qrImage = \QrCode::format('png')->size(300)->generate($qrData);
+    
+        return response($qrImage)
+            ->header('Content-Type', 'image/png')
+            ->header('Content-Disposition', 'attachment; filename="asset-'.$asset->id.'-qr.png"');
+    }
+
 }
