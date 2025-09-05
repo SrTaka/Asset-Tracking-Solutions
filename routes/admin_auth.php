@@ -33,6 +33,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('assets/export', [AssetController::class, 'export'])->name('admin.assets.export');
     Route::get('assets/import', [AssetController::class, 'importForm'])->name('admin.assets.import.form');
     Route::post('assets/import', [AssetController::class, 'import'])->name('admin.assets.import');
+    Route::get('assets/import/template', [AssetController::class, 'downloadImportTemplate'])->name('admin.assets.import.template');
 
     Route::post('assets', [AssetController::class, 'store'])->name('admin.assets.store');
     Route::get('assets/{asset}', [AssetController::class, 'show'])->name('admin.assets.show');
@@ -40,6 +41,7 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::put('assets/{asset}', [AssetController::class, 'update'])->name('admin.assets.update');
     Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('admin.assets.destroy');
     Route::get('assets/{asset}/qr-code', [AssetController::class, 'generateQrCode'])->name('admin.assets.qr-code');
+    Route::get('assets/{asset}/qr', [AssetController::class, 'streamQrCode'])->name('admin.assets.qr');
 
     // User Management Routes
     Route::get('users', [UserManagementController::class, 'index'])->name('admin.users.index');
