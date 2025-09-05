@@ -198,9 +198,7 @@ class AssetController extends Controller
                 $image = $request->file('asset_image');
                 $imageName = $asset->id . '_' . time() . '.' . $image->getClientOriginalExtension();
                 $imagePath = 'assets/images/' . $imageName;
-                
-                // Store the image
-                Storage::put('public/' . $imagePath, file_get_contents($image));
+                Storage::putFileAs('public/assets/images', $image, $imageName);
                 $asset->asset_image_path = $imagePath;
             } else {
                 // Set default asset image path
@@ -257,6 +255,56 @@ class AssetController extends Controller
         return view('admin.assets.import');
     }
 
+    public function downloadImportTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="asset_import_template.csv"',
+        ];
+
+        $columns = [
+            'name',
+            'description',
+            'category_id',
+            'purchase_date',
+            'purchase_price',
+            'status',
+        ];
+
+        $callback = function () use ($columns) {
+            $output = fopen('php://output', 'w');
+            // Add BOM for proper UTF-8 encoding
+            fwrite($output, "\xEF\xBB\xBF");
+            fputcsv($output, $columns);
+            
+            // Get available categories
+            $categories = AssetCategory::all();
+            
+            // Add example rows with proper data types
+            fputcsv($output, ['Laptop X', '15-inch laptop', '1', '2025-08-21', '1200.00', 'available']);
+            fputcsv($output, ['Office Chair', 'Ergonomic office chair', '2', '2025-08-22', '250.50', 'available']);
+            fputcsv($output, ['', '', '', '', '', '']); // Empty row for user input
+            
+            // Add available categories section
+            fputcsv($output, ['# Available Asset Categories:']);
+            foreach ($categories as $category) {
+                fputcsv($output, ['# ID: ' . $category->id . ' - ' . $category->name . ($category->description ? ' (' . $category->description . ')' : '')]);
+            }
+            
+            // Add instructions
+            fputcsv($output, ['# Instructions:']);
+            fputcsv($output, ['# name: Required, max 100 characters']);
+            fputcsv($output, ['# description: Optional, text description']);
+            fputcsv($output, ['# category_id: Required, use one of the IDs listed above']);
+            fputcsv($output, ['# purchase_date: Required, format YYYY-MM-DD']);
+            fputcsv($output, ['# purchase_price: Required, decimal number (e.g., 1200.00)']);
+            fputcsv($output, ['# status: Required, one of: available, assigned, maintenance']);
+            fclose($output);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
     public function generateQrCode(Asset $asset)
     {
         $qrData = json_encode([
@@ -276,6 +324,24 @@ class AssetController extends Controller
 
         return redirect()->route('admin.assets.show', $asset->id)
             ->with('success', 'QR code generated successfully!');
+    }
+
+    public function streamQrCode(Asset $asset)
+    {
+        $qrData = $asset->qr_code_data ?: json_encode([
+            'id' => $asset->id,
+            'name' => $asset->name,
+            'category_id' => $asset->category_id,
+            'purchase_date' => $asset->purchase_date,
+            'purchase_price' => $asset->purchase_price,
+        ]);
+
+        $qrImage = QrCode::format('png')->size(300)->generate($qrData);
+
+        return response($qrImage, 200, [
+            'Content-Type' => 'image/png',
+            'Cache-Control' => 'no-store',
+        ]);
     }
 
 }

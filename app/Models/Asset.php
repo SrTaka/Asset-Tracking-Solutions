@@ -10,7 +10,7 @@ class Asset extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $fillable = ['name', 'description', 'category_id', 'purchase_date', 'purchase_price'];
+    protected $fillable = ['name', 'description', 'category_id', 'purchase_date', 'purchase_price', 'status'];
 
     protected static function boot()
     {
