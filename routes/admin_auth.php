@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\Auth\AuthenticatedAdminController;
 use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssignmentController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('guest:admin')->group(function () {
@@ -57,10 +58,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('/admin/assets/{asset}/qr/download', [\App\Http\Controllers\AssetController::class, 'downloadQr'])
         ->name('admin.assets.qr.download');
     
-    // Assignment routes
-    Route::prefix('admin')->middleware(['auth', 'is_admin'])->group(function () {
-        Route::get('assignments', [AssignmentController::class, 'index'])->name('admin.assignments.index');
-        Route::get('assignments/create', [AssignmentController::class, 'create'])->name('admin.assignments.create');
-        Route::post('assignments', [AssignmentController::class, 'store'])->name('admin.assignments.store');
-    });
+    // Assignment routes (under auth:admin)
+    Route::get('assignments', [AssignmentController::class, 'index'])->name('admin.assignments.index');
+    Route::get('assignments/create', [AssignmentController::class, 'create'])->name('admin.assignments.create');
+    Route::post('assignments', [AssignmentController::class, 'store'])->name('admin.assignments.store');
 });

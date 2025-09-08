@@ -14,7 +14,8 @@ return new class extends Migration
     Schema::create('assignments', function (Blueprint $table) {
         $table->id();
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->foreignId('asset_id')->constrained()->onDelete('cascade');
+        $table->string('asset_id');
+        $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade');
         $table->timestamps();
     });
 }
