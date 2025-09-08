@@ -24,8 +24,15 @@ class AuthenticatedAdminController extends Controller
      */
     public function store(AdminLoginRequest $request): RedirectResponse
     {
+        // Log out user if logged in on the 'web' guard
+        if (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
+
+        // Authenticate the admin user
         $request->authenticate();
 
+        // Regenerate session to prevent fixation
         $request->session()->regenerate();
 
         return redirect()->intended(route('admin.dashboard', absolute: false));
@@ -44,8 +51,5 @@ class AuthenticatedAdminController extends Controller
 
         return redirect()->route('admin.login');
     }
-
-    // User management moved to UserManagementController
-    
 }
 

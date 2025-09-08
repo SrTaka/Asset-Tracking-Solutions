@@ -8,6 +8,10 @@
             <a href="{{ route('admin.users.create', ['source' => $source]) }}" class="ml-4 bg-green-600 text-white px-3 py-1 rounded">Create</a>
         </div>
     </div>
+    <div class="mt-4">
+        <a href="{{ route('admin.dashboard') }}" class="inline-block bg-gray-700 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded shadow transition">Back to Dashboard</a>
+    </div>
+</br>
 
     @if(session('status'))
         <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">{{ session('status') }}</div>
