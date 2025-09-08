@@ -41,10 +41,17 @@
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}" id="logout-form">
                             @csrf
-                            <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
+                            @if(Auth::guard('admin')->check())
+                                <x-dropdown-link :href="route('admin.logout')"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    {{ __('Log Out (Admin)') }}
+                                </x-dropdown-link>
+                            @else
+                                <x-dropdown-link :href="route('logout')"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    {{ __('Log Out') }}
+                                </x-dropdown-link>
+                            @endif
                         </form>
                     </x-slot>
                 </x-dropdown>
