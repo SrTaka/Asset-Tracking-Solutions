@@ -11,10 +11,15 @@ return new class extends Migration
      */
    public function up()
 {
+    if (Schema::hasTable('assignments')) {
+        return;
+    }
+
     Schema::create('assignments', function (Blueprint $table) {
         $table->id();
         $table->foreignId('user_id')->constrained()->onDelete('cascade');
-        $table->string('asset_id');
+        // Match assets.id which is char(8)
+        $table->char('asset_id', 8);
         $table->foreign('asset_id')->references('id')->on('assets')->onDelete('cascade');
         $table->timestamps();
     });

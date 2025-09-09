@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('guest:admin')->group(function () {
@@ -23,6 +24,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
         Route::get('dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
+
+    // Dashboard data endpoints
+    Route::get('dashboard/movement-summary', [DashboardController::class, 'movementSummary'])
+        ->name('admin.dashboard.movement-summary');
 
     Route::post('logout', [AuthenticatedAdminController::class, 'destroy'])
         ->name('admin.logout');
