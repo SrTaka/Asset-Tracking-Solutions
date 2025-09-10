@@ -67,4 +67,8 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
     Route::get('assignments', [AssignmentController::class, 'index'])->name('admin.assignments.index');
     Route::get('assignments/create', [AssignmentController::class, 'create'])->name('admin.assignments.create');
     Route::post('assignments', [AssignmentController::class, 'store'])->name('admin.assignments.store');
+
+
+    Route::get('dashboard/sse', [DashboardController::class, 'sse'])->name('admin.dashboard.sse');
+    
 });

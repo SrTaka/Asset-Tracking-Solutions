@@ -48,84 +48,65 @@
         </button>
     </div>
     <!-- Main Content (Tabs) -->
-    <div class="flex-1 ml-0 md:ml-64 overflow-y-auto transition-all duration-200">
+    <div class="flex-1 ml-0 md:ml-[4rem] overflow-y-auto transition-all duration-200">
         <div class="py-12 px-4 md:px-8 max-w-7xl mx-auto">
-            <!-- Dashboard Tab (Asset Movement via Modal) -->
-            <div x-show="activeTab === 'dashboard'" x-transition x-data="movementModal()">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        <h4 class="text-lg font-medium mb-6">Welcome to the Admin Dashboard</h4>
-                        <!-- Success Message -->
-                        @if (session('success'))
-                            <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded">
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                        <p class="text-gray-700 dark:text-gray-300 mb-4">Use the button below to view recent asset movement.</p>
-                        <button @click="open()" class="px-4 py-2 bg-indigo-600 text-white rounded">View Asset Movement</button>
-                    </div>
-                </div>
-
-                <!-- Asset Movement Modal -->
-                <div x-show="isOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center">
-                    <div class="absolute inset-0 bg-black/50" @click="close()"></div>
-                    <div class="relative bg-white dark:bg-gray-800 rounded shadow-lg w-full max-w-5xl mx-4 p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100">Asset Movement Overview</h3>
-                            <button @click="close()" class="text-gray-500 hover:text-gray-800 dark:hover:text-gray-200">✕</button>
+            <!-- Dashboard Tab -->
+            <div x-show="activeTab === 'dashboard'" x-transition>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Total Users Card -->
+                    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex items-center">
+                        <div class="flex-shrink-0 bg-indigo-100 dark:bg-indigo-700 rounded-full p-3">
+                            <svg class="w-6 h-6 text-indigo-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87M16 3.13a4 4 0 010 7.75M8 3.13a4 4 0 000 7.75"/>
+                            </svg>
                         </div>
-                        <template x-if="loading">
-                            <div class="text-gray-600 dark:text-gray-300">Loading...</div>
-                        </template>
-                        <template x-if="!loading">
-                            <div>
-                                <div class="mb-4 text-gray-700 dark:text-gray-300">
-                                    <div>Default range: <span x-text="summary.range.start"></span> → <span x-text="summary.range.end"></span></div>
-                                    <div class="mt-1 flex gap-4">
-                                        <div>Total assignments: <span class="font-semibold" x-text="summary.total_assignments"></span></div>
-                                        <div>Unique assets: <span class="font-semibold" x-text="summary.unique_assets"></span></div>
-                                        <div>Unique users: <span class="font-semibold" x-text="summary.unique_users"></span></div>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                    <div class="bg-gray-50 dark:bg-gray-900 rounded p-4">
-                                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-200">Assignments Over Time</h4>
-                                        <canvas id="movementChart" height="160"></canvas>
-                                    </div>
-                                    <div class="bg-gray-50 dark:bg-gray-900 rounded p-4 overflow-x-auto">
-                                        <h4 class="font-medium mb-2 text-gray-700 dark:text-gray-200">Recent Assignments</h4>
-                                        <table class="min-w-full text-sm">
-                                            <thead class="text-left text-gray-600 dark:text-gray-300 border-b dark:border-gray-700">
-                                                <tr>
-                                                    <th class="py-2 pr-4">When</th>
-                                                    <th class="py-2 pr-4">Asset</th>
-                                                    <th class="py-2 pr-4">User</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <template x-for="row in rows" :key="row.id">
-                                                    <tr class="border-b last:border-0 dark:border-gray-700">
-                                                        <td class="py-2 pr-4" x-text="row.assigned_at"></td>
-                                                        <td class="py-2 pr-4" x-text="row.asset_name ? row.asset_name + ' (' + row.asset_id + ')' : row.asset_id"></td>
-                                                        <td class="py-2 pr-4" x-text="row.user_name"></td>
-                                                    </tr>
-                                                </template>
-                                                <tr x-show="rows.length === 0">
-                                                    <td colspan="3" class="py-4 text-gray-500 dark:text-gray-400">No movements in this period.</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Total Users</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="total_users">100</div>
+                        </div>
+                    </div>
+                    <!-- Total Assets Card -->
+                    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex items-center">
+                        <div class="flex-shrink-0 bg-green-100 dark:bg-green-700 rounded-full p-3">
+                            <svg class="w-6 h-6 text-green-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-6a2 2 0 012-2h2a2 2 0 012 2v6m-6 0h6"/>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Total Assets</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="total_assets">250</div>
+                        </div>
+                    </div>
+                    <!-- Assigned Assets Card -->
+                    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex items-center">
+                        <div class="flex-shrink-0 bg-yellow-100 dark:bg-yellow-700 rounded-full p-3">
+                            <svg class="w-6 h-6 text-yellow-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6 1a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Assigned Assets</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="assigned_assets">120</div>
+                        </div>
+                    </div>
+                    <!-- Assets in Maintenance Card -->
+                    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 flex items-center">
+                        <div class="flex-shrink-0 bg-red-100 dark:bg-red-700 rounded-full p-3">
+                            <svg class="w-6 h-6 text-red-600 dark:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 10c-4.41 0-8-1.79-8-4V6c0-2.21 3.59-4 8-4s8 1.79 8 4v8c0 2.21-3.59 4-8 4z"/>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
+                            <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Assets in Maintenance</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="maintenance_assets">15</div>
+                        </div>
                     </div>
                 </div>
-                <!-- End Asset Movement Modal -->
             </div>
+        </div>
             <!-- Asset Management Tab -->
             <div x-show="activeTab === 'assets'" x-transition>
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm ">
                     <div class="p-6 text-gray-900 dark:text-gray-100">
                         <h5 class="text-md font-medium mb-4 text-gray-700 dark:text-gray-300">Asset Management</h5>
                         <div class="flex flex-wrap gap-4">
@@ -205,5 +186,23 @@
 </div>
 <!-- Alpine.js for sidebar and tab logic -->
 <script src="//unpkg.com/alpinejs" defer></script>
+
+var sseServer = new EventSource('{{ route('admin.dashboard.sse') }}');
+function establishSSEConnection() {
+    sseSource = new EventSource('{{ route('admin.dashboard.sse') }}');
+    sseServer.onmessage = function(event) {
+        let eventData = JSON.parse(event.data);
+        console.log(eventData);
+        $('#total')
+    }
+    sseSource.onerror = function(event) {
+        if (sseSource.readyState === EventSource.CLOSED) {
+            console.log('SSE connection closed');
+            console.log("Attempting to reconnect...");
+            establishSSEConnection();
+        }
+    }
+}
+establishSSEConnection();
 <!-- End Hamburger Sidebar Layout -->
 </x-app-layout>

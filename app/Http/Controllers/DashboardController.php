@@ -11,44 +11,23 @@ class DashboardController extends Controller
     /**
      * Return JSON summary of asset movement (assignments) within a date range.
      */
-    public function movementSummary(Request $request)
+    Public function sse()
     {
-        $startDateParam = $request->query('start_date');
-        $endDateParam = $request->query('end_date');
+        header('Content-type: text/event-stream');
+        header('Cache-Control: no-cache');
+        header('Connection: keep-alive');
 
-        $start = $startDateParam ? Carbon::parse($startDateParam)->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
-        $end = $endDateParam ? Carbon::parse($endDateParam)->endOfDay() : Carbon::now()->endOfDay();
+        $eventData = [
+            'totalUsers' => User::count(),
+            'totalAssets' => Assets::count(),
+            'totalUsers' => User::count(),
+            'totalUsers' => User::count(),
 
-        $assignments = Assignment::with(['user:id,name', 'asset:id,name'])
-            ->whereBetween('created_at', [$start, $end])
-            ->orderByDesc('created_at')
-            ->limit(500)
-            ->get();
-
-        $summary = [
-            'total_assignments' => $assignments->count(),
-            'unique_assets' => $assignments->pluck('asset_id')->unique()->count(),
-            'unique_users' => $assignments->pluck('user_id')->unique()->count(),
-            'range' => [
-                'start' => $start->toDateString(),
-                'end' => $end->toDateString(),
-            ],
         ];
+        echo "data:" . json_encode($eventData) . "\n\n";
+        ob_flush();
+        flush();
 
-        $data = $assignments->map(function ($a) {
-            return [
-                'id' => $a->id,
-                'asset_id' => $a->asset_id,
-                'asset_name' => optional($a->asset)->name,
-                'user_name' => optional($a->user)->name,
-                'assigned_at' => $a->created_at?->toDateTimeString(),
-            ];
-        });
-
-        return response()->json([
-            'summary' => $summary,
-            'assignments' => $data,
-        ]);
     }
 }
 
