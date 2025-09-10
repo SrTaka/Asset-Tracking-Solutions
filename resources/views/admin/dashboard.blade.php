@@ -74,7 +74,7 @@
                         </div>
                         <div class="ml-4">
                             <div class="text-sm font-medium text-gray-500 dark:text-gray-300">Total Assets</div>
-                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="total_assets">250</div>
+                            <div class="text-2xl font-bold text-gray-900 dark:text-white" id="total_assets"></div>
                         </div>
                     </div>
                     <!-- Assigned Assets Card -->
@@ -103,6 +103,97 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="row mt-5">
+
+
+
+
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div id="asset-creation"></div>
+
+                    </div>
+                    <!-- ...existing code... -->
+                    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+                    <script src="//unpkg.com/alpinejs" defer></script>
+                    <script>
+                    let assetStatusChart;
+                    function updateAssetStatusChart(data) {
+                        const options = {
+                            chart: { type: 'donut', height: 250 },
+                            series: [data.assigned_assets, data.maintenance_assets, (data.total_assets - data.assigned_assets - data.maintenance_assets)],
+                            labels: ['Assigned', 'Maintenance', 'Available'],
+                            colors: ['#6366f1', '#f59e42', '#10b981'],
+                        };
+                        if (!assetStatusChart) {
+                            assetStatusChart = new ApexCharts(document.querySelector("#asset-status-chart"), options);
+                            assetStatusChart.render();
+                        } else {
+                            assetStatusChart.updateSeries(options.series);
+                        }
+                    }
+                    // Call this in both fetch and SSE handlers:
+                    // updateAssetStatusChart(data); // Call this with your data object when ready
+                    </script>
+                    <script>
+                    function updateDashboardCards(data) {
+                        document.getElementById('total_users').textContent = data.total_users ?? 0;
+                        document.getElementById('total_assets').textContent = data.total_assets ?? 0;
+                        document.getElementById('assigned_assets').textContent = data.assigned_assets ?? 0;
+                        document.getElementById('maintenance_assets').textContent = data.maintenance_assets ?? 0;
+                    }
+                    
+                    // Initial fetch for fast load
+                    updateAssetStatusChart(data);
+                        .then(res => res.json())
+                        .then(data => {
+                            updateDashboardCards(data);
+                            // Optionally, update charts here as well
+                        });
+                    
+                    // SSE for live updates
+                    function establishSSEConnection() {
+                        let sseSource = new EventSource('{{ route('admin.dashboard.sse') }}');
+                        sseSource.onmessage = function(event) {
+                            let eventData = JSON.parse(event.data);
+                            updateDashboardCards(eventData);
+                            // Optionally, update charts here as well
+                        };
+                        sseSource.onerror = function(event) {
+                            if (sseSource.readyState === EventSource.CLOSED) {
+                                setTimeout(establishSSEConnection, 2000);
+                            }
+                        };
+                    }
+                    establishSSEConnection();
+                    </script>
+                    <!-- ...existing code... -->
+
+                </div>
+
+            </div>
+                <div class="col-md-6">
+                    <div class="card">
+                         <div class="card-body">
+                            <div id="asset-transfers"></div>
+
+                        
+                    </div>
+
+                    </div>
+
+            </div>
+
+
+
+
+
+
+
+
+
         </div>
             <!-- Asset Management Tab -->
             <div x-show="activeTab === 'assets'" x-transition>
@@ -184,25 +275,33 @@
         </div>
     </div>
 </div>
+</div>
 <!-- Alpine.js for sidebar and tab logic -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 <script src="//unpkg.com/alpinejs" defer></script>
 
-var sseServer = new EventSource('{{ route('admin.dashboard.sse') }}');
+
 function establishSSEConnection() {
-    sseSource = new EventSource('{{ route('admin.dashboard.sse') }}');
-    sseServer.onmessage = function(event) {
+    let sseSource = new EventSource('{{ route('admin.dashboard.sse') }}');
+    sseSource.onmessage = function(event) {
         let eventData = JSON.parse(event.data);
         console.log(eventData);
-        $('#total')
-    }
+        document.getElementById('total_users').textContent = eventData.total_users;
+        document.getElementById('total_assets').textContent = eventData.total_assets;
+        document.getElementById('assigned_assets').textContent = eventData.assigned_assets;
+        document.getElementById('maintenance_assets').textContent = eventData.maintenance_assets;
+    };
     sseSource.onerror = function(event) {
         if (sseSource.readyState === EventSource.CLOSED) {
             console.log('SSE connection closed');
             console.log("Attempting to reconnect...");
-            establishSSEConnection();
+            setTimeout(establishSSEConnection, 2000);
         }
-    }
+    };
 }
 establishSSEConnection();
+</script>
+
+
 <!-- End Hamburger Sidebar Layout -->
 </x-app-layout>
