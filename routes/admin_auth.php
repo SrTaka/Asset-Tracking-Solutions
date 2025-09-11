@@ -70,5 +70,10 @@ Route::prefix('admin')->middleware('auth:admin')->group(function () {
 
 
     Route::get('dashboard/sse', [DashboardController::class, 'sse'])->name('admin.dashboard.sse');
+
+    Route::get('sample', function(){
+        return view('sample');
+
+    });
     
 });

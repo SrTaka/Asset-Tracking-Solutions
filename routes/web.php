@@ -5,6 +5,7 @@ use App\Mail\TestMail;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AssetController;
 use Illuminate\Support\Facades\Route;
+use ArielMejiaDev\LarapexCharts\LarapexChart;
 
 Route::get('/', function () {
     return view('welcome');
@@ -25,6 +26,17 @@ Route::get('/send-test-email', function () {
     return 'Test email sent!';
 });
 
+Route::get('sample', function(){
+
+    $chart = (new Larapexchart()) -> setTitle('Net Profit')
+    ->setSubtitle('From January to March')
+    ->setType('radialBar')
+    ->setLabels(['Product One', 'Product Two', 'Product Three'])
+    ->setXAxis(['Jan', 'Feb', 'Mar'])
+    -> setDataset([60, 56, 79]);
+    return view('sample', compact('chart'));
+
+    });
 
 
 require __DIR__.'/auth.php';
