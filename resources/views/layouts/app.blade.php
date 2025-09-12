@@ -13,7 +13,12 @@
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
-
+        <style>
+            [x-cloak] { display: none !important; }
+            .sidebar-transition {
+                transition: transform 0.3s ease-in-out;
+            }
+        </style>
        
     </head>
     <body class="font-sans antialiased">
@@ -28,10 +33,6 @@
                     </div>
                 </header>
             @endisset
-
-
-
-
             <!-- Page Content -->
             <main>
                 {{ $slot }}
